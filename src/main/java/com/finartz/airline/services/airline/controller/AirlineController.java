@@ -1,7 +1,9 @@
 package com.finartz.airline.services.airline.controller;
 
+import javax.persistence.EntityNotFoundException;
 import javax.websocket.server.PathParam;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +14,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.finartz.airline.services.RestApiController;
 import com.finartz.airline.services.airline.entity.Airline;
 import com.finartz.airline.services.airline.entity.Flight;
 import com.finartz.airline.services.airline.entity.Ticket;
 import com.finartz.airline.services.airline.service.AirlineService;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @RestController
-public class AirlineController {
+public class AirlineController extends RestApiController {
 
 	private static final Airline EMPTY_AIRLINE = new Airline();
 	private static final Flight EMPTY_FLIGHT = new Flight();
@@ -31,13 +37,16 @@ public class AirlineController {
 		this.service = service;
 	}
 
+	@ApiOperation(value = "Get all airline companies from database", notes = "Returns list of Airline objects included in the database", response = Iterable.class)
 	@GetMapping("/airlines")
 	public Iterable<Airline> getAllAirlines() {
 		return service.getAllAirlines();
 	}
 
+	@ApiOperation(value = "Find airline by airline id", notes = "It returns the details of the airline whose id is provided. If does not found then empty airline is returned", response = Airline.class)
 	@GetMapping("/airline/{id}")
-	public Airline getAirline(@PathVariable("id") Long id) {
+	public Airline getAirline(
+			@ApiParam(name = "Airline id", required = true, value = "Airline id for looking up the airline") @PathVariable("id") Long id) {
 		return service.getAirlineById(id).orElse(EMPTY_AIRLINE);
 	}
 
@@ -48,33 +57,43 @@ public class AirlineController {
 
 	@PostMapping("/airline/{id}/flight")
 	public ResponseEntity<Flight> createFlight(@PathVariable("id") Long id, @RequestBody Flight flight,
-			@PathParam("routeId") Long routeId) throws Exception {
+			@PathParam("routeId") Long routeId) throws EntityNotFoundException, ConstraintViolationException {
 		return new ResponseEntity<Flight>(service.addFlight(id, routeId, flight), HttpStatus.CREATED);
 	}
 
-//	@GetMapping("/flight/{id}")
-//	public Flight getFlight(@PathVariable("id") Long id) {
-//		return service.getFlightById(id).orElse(EMPTY_FLIGHT);
-//	}
+	@ApiOperation(value = "Find flight by flight id", notes = "It returns the details of the flight whose id is provided. If does not found then empty flight is returned", response = Flight.class)
+	@GetMapping("/flight/{id}")
+	public Flight getFlight(
+			@ApiParam(name = "Flight id", required = true, value = "Flight id for looking up the flight") @PathVariable("id") Long id) {
+		return service.getFlightById(id).orElse(EMPTY_FLIGHT);
+	}
 
+	@ApiOperation(value = "Find flight by flight name", notes = "It returns the details of the flight whose name is provided. If does not found then empty flight is returned", response = Flight.class)
 	@GetMapping("/flight/{name}")
-	public Flight getFlightByName(@PathVariable("name") String name) {
+	public Flight getFlightByName(
+			@ApiParam(name = "Flight name", required = true, value = "Flight id for looking up the flight") @PathVariable("name") String name) {
 		return service.getFlightByName(name).orElse(EMPTY_FLIGHT);
 	}
 
+	@ApiOperation(value = "Add ticket to Database", notes = "It adds tickets to the database", response = ResponseEntity.class)
 	@PostMapping("/ticket")
-	public ResponseEntity<Ticket> buyTicket(@PathParam("flightId") Long flightId, @RequestBody Ticket ticket)
-			throws Exception {
+	public ResponseEntity<Ticket> buyTicket(@PathParam("flightId") Long flightId,
+			@ApiParam(required = true, value = "Ticket to be added") @RequestBody Ticket ticket)
+			throws EntityNotFoundException, ConstraintViolationException {
 		return new ResponseEntity<Ticket>(service.addTicket(flightId, ticket), HttpStatus.CREATED);
 	}
 
+	@ApiOperation(value = "Find ticket by flight id", notes = "It returns the details of the ticket whose id is provided. If does not found then empty ticket is returned", response = Ticket.class)
 	@GetMapping("/ticket/{id}")
-	public Ticket getTicket(@PathVariable("id") Long ticketId) {
+	public Ticket getTicket(
+			@ApiParam(name = "Ticket id", required = true, value = "Ticket id for looking up the ticket") @PathVariable("id") Long ticketId) {
 		return service.getTicketById(ticketId).orElse(EMPTY_TICKET);
 	}
 
+	@ApiOperation(value = "Delete ticket by flight id", notes = "It cancelsthe ticket whose id is provided", response = Ticket.class)
 	@DeleteMapping("/ticket/{id}")
-	public void cancelTicket(@PathVariable("id") Long id) {
+	public void cancelTicket(
+			@ApiParam(name = "Ticket id", required = true, value = "Ticket id for cancelling") @PathVariable("id") Long id) {
 		service.deleteTicketById(id);
 	}
 

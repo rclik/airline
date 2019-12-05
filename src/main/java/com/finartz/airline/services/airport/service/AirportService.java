@@ -2,6 +2,7 @@ package com.finartz.airline.services.airport.service;
 
 import java.util.Optional;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class AirportService {
 		return respository.findById(id);
 	}
 
-	public Airport addAirport(Airport airport) {
+	public Airport addAirport(Airport airport) throws ConstraintViolationException {
 		return respository.save(airport);
 	}
 }

@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import com.finartz.airline.services.airport.entity.Airport;
+import com.sun.istack.NotNull;
 
 @Entity
 public class Route {
@@ -14,10 +15,13 @@ public class Route {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
-	@OneToOne(cascade = {CascadeType.ALL})
+
+	@NotNull
+	@OneToOne(cascade = { CascadeType.ALL })
 	private Airport fromAirport;
-	@OneToOne(cascade = {CascadeType.ALL})
+
+	@NotNull
+	@OneToOne(cascade = { CascadeType.ALL })
 	private Airport toAirport;
 
 	public Route() {

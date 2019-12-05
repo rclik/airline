@@ -2,6 +2,9 @@ package com.finartz.airline.services.airline.service;
 
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,14 +57,15 @@ public class AirlineService {
 		return repository.findById(id);
 	}
 
-	public Flight addFlight(Long airlineId, Long routeId, Flight flight) throws Exception {
+	public Flight addFlight(Long airlineId, Long routeId, Flight flight) throws EntityNotFoundException {
 		Optional<Airline> optionalAirline = repository.findById(airlineId);
 		Airline airline = optionalAirline
-				.orElseThrow(() -> new Exception("There is no airline with given id: " + airlineId));
+				.orElseThrow(() -> new EntityNotFoundException("There is no airline with given id: " + airlineId));
 		flight.setCompany(airline);
 
 		Optional<Route> optionalRoute = routeRepository.findById(routeId);
-		Route route = optionalRoute.orElseThrow(() -> new Exception("There is no route with given id: " + routeId));
+		Route route = optionalRoute
+				.orElseThrow(() -> new EntityNotFoundException("There is no route with given id: " + routeId));
 		flight.setRoute(route);
 
 		flightRepository.save(flight);
@@ -76,10 +80,11 @@ public class AirlineService {
 		return flightRepository.findByName(name);
 	}
 
-	public Ticket addTicket(Long flightId, Ticket ticket) throws Exception {
+	public Ticket addTicket(Long flightId, Ticket ticket) throws EntityNotFoundException, ConstraintViolationException {
 		// finding flight
 		Optional<Flight> optFlight = flightRepository.findById(flightId);
-		Flight flight = optFlight.orElseThrow(() -> new Exception("There is no flight with given id: " + flightId));
+		Flight flight = optFlight
+				.orElseThrow(() -> new EntityNotFoundException("There is no flight with given id: " + flightId));
 
 		int currentTicketCount = ticketRepository.countByFlightId(flight.getId());
 
@@ -94,9 +99,9 @@ public class AirlineService {
 		return ticketRepository.save(ticket);
 	}
 
-	private void checkForAvailableTicket(Flight flight, int currentTicketCount) throws Exception {
+	private void checkForAvailableTicket(Flight flight, int currentTicketCount) throws EntityNotFoundException , ConstraintViolationException{
 		if (flight.getMaxPassengerNumber() == currentTicketCount) {
-			throw new Exception("There is no awailable ticket.");
+			throw new EntityNotFoundException("There is no awailable ticket.");
 		}
 	}
 
