@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.finartz.airline.services.airline.AirlineDataLoader;
-import com.finartz.airline.services.airport.AirportDataLoader;
-import com.finartz.airline.services.route.RouteDataLoader;
+import com.finartz.airline.restapi.services.airline.AirlineDataLoader;
+import com.finartz.airline.restapi.services.airport.AirportDataLoader;
+import com.finartz.airline.restapi.services.route.RouteDataLoader;
 
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -21,7 +21,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-@EnableJpaRepositories("com.finartz.airline.services")
+@EnableJpaRepositories("com.finartz.airline.restapi.services")
 @EnableSwagger2
 public class AirlineApplication {
 
@@ -47,7 +47,7 @@ public class AirlineApplication {
 	@Bean
 	public Docket configuraSwagger() {
 		return new Docket(DocumentationType.SWAGGER_2).select().paths(PathSelectors.ant("/api/**")) // main api path
-				.apis(RequestHandlerSelectors.basePackage("com.finartz.airline.services")).build()
+				.apis(RequestHandlerSelectors.basePackage("com.finartz.airline.restapi.services")).build()
 				.apiInfo(buildApiInfo());
 	}
 
